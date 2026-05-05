@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sonic Particles x Apple Music</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260503b" />
+  </head>
+  <body>
+    <main class="particle-app">
+      <aside class="control-dock">
+        <div class="control-dock-header">
+          <h1>Sonic Particles</h1>
+          <p class="dock-copy">Audio-driven waveform particle visualizer, now driven by Apple Music artwork and playback state.</p>
+        </div>
+
+        <div class="control-dock-body">
+          <section class="dock-section">
+            <div class="section-head">
+              <div class="section-head-copy">
+                <p class="section-kicker">Apple Music</p>
+                <p id="apple-auth-state" class="auth-state-pill">检查 Apple Music 配置中</p>
+              </div>
+              <span id="identity-badge" class="identity-badge">未连接</span>
+            </div>
+
+            <p id="apple-auth-hint" class="section-copy">页面会先确认本地服务端是否已经准备好 developer token。</p>
+
+            <div class="stacked-actions">
+              <button id="apple-connect-button" class="primary-button" type="button">连接 Apple Music</button>
+              <button id="apple-disconnect-button" class="ghost-button" type="button">断开连接</button>
+            </div>
+
+            <label class="field-block">
+              <span class="field-label">Storefront</span>
+              <input id="storefront" type="text" value="us" maxlength="12" placeholder="us / cn / jp" />
+            </label>
+
+            <div class="info-block">
+              <span class="field-label">身份信息</span>
+              <p id="apple-id-summary" class="section-copy">授权成功后，这里会显示 Apple Music 账户对应的 storefront。</p>
+            </div>
+          </section>
+
+          <section class="dock-section">
+            <div class="section-head">
+              <div class="section-head-copy">
+                <p class="section-kicker">Sidebar Mode</p>
+                <p class="section-copy compact-copy">在 GitHub 原版视觉参数侧栏和 Apple Music 选歌界面之间切换。</p>
+              </div>
+            </div>
+
+            <div class="mode-switch" role="tablist" aria-label="Sidebar Modes">
+              <button class="mode-button is-active" type="button" data-mode="visual">视觉参数</button>
+              <button class="mode-button" type="button" data-mode="browser">选歌界面</button>
+            </div>
+          </section>
+
+          <section id="browser-panel" class="dock-section" hidden>
+            <div class="section-head">
+              <div class="section-head-copy">
+                <p class="section-kicker">Apple Music Browser</p>
+                <p class="section-copy compact-copy">搜索歌曲、专辑和播放列表，点结果后直接载入 Apple Music 队列。</p>
+              </div>
+            </div>
+
+            <div id="browser-search-view" class="browser-view">
+              <form id="search-form" class="search-form">
+                <label class="field-label" for="search-input">搜索内容</label>
+                <div class="search-row">
+                  <input id="search-input" type="search" placeholder="Taylor Swift / city pop / workout" />
+                  <button id="search-button" class="primary-button compact-button" type="submit">搜索</button>
+                </div>
+              </form>
+
+              <div class="search-type-row" role="tablist" aria-label="Search Filters">
+                <button class="type-chip is-active" type="button" data-type="all">全部</button>
+                <button class="type-chip" type="button" data-type="song">歌曲</button>
+                <button class="type-chip" type="button" data-type="album">专辑</button>
+                <button class="type-chip" type="button" data-type="playlist">播放列表</button>
+              </div>
+
+              <div class="search-source-row" role="tablist" aria-label="Search Source">
+                <button class="source-chip is-active" type="button" data-source="catalog">Apple Music 目录</button>
+                <button class="source-chip" type="button" data-source="library">你的资源库</button>
+                <button class="source-chip" type="button" data-source="all">两者一起</button>
+              </div>
+
+              <p id="search-status" class="section-copy compact-copy">输入关键词后会通过 Apple Music API 搜索，点结果即可直接载入播放。</p>
+              <div id="search-results" class="search-results"></div>
+            </div>
+
+            <div id="browser-detail-view" class="browser-view" hidden>
+              <div class="detail-toolbar">
+                <button id="detail-back-button" class="ghost-button detail-back-button" type="button">返回搜索</button>
+                <button id="detail-play-all-button" class="primary-button compact-button" type="button">播放全部</button>
+              </div>
+
+              <article class="detail-hero">
+                <div class="detail-hero-art">
+                  <img id="detail-artwork" alt="" />
+                </div>
+
+                <div class="detail-hero-copy">
+                  <p class="section-kicker" id="detail-kicker">Collection</p>
+                  <h3 id="detail-title" class="detail-title">未选择内容</h3>
+                  <p id="detail-meta" class="section-copy compact-copy">这里会显示专辑或播放列表信息。</p>
+                  <p id="detail-supporting" class="detail-supporting">点一首具体歌曲即可从该集合中开始播放。</p>
+                </div>
+              </article>
+
+              <p id="detail-status" class="section-copy compact-copy">正在准备曲目列表。</p>
+              <div id="detail-tracks" class="detail-tracks"></div>
+            </div>
+          </section>
+
+          <section id="visual-panel" class="dock-section">
+            <div class="section-head">
+              <div class="section-head-copy">
+                <p class="section-kicker">Visualization Mode</p>
+                <p class="section-copy compact-copy">沿用 GitHub 原版 `ParticleVisualizer` 的控制逻辑，只把图像来源改成 Apple Music 当前封面。</p>
+              </div>
+            </div>
+
+            <div class="visual-group">
+              <h3 class="visual-group-title">Visualization Mode</h3>
+              <div class="segmented-control" role="tablist" aria-label="Motion Mode">
+                <button class="motion-mode-button is-active" type="button" data-motion-mode="waveform-displace">Hybrid</button>
+                <button class="motion-mode-button" type="button" data-motion-mode="classic">Classic</button>
+              </div>
+
+              <label class="toggle-row" for="glow-toggle">
+                <span>Show Particle Glow (Outline)</span>
+                <input id="glow-toggle" type="checkbox" />
+              </label>
+            </div>
+
+            <div class="visual-group">
+              <h3 class="visual-group-title">Luminance Boost</h3>
+              <label class="toggle-row" for="luminance-toggle">
+                <span>Boost Minimum Luminance</span>
+                <input id="luminance-toggle" type="checkbox" />
+              </label>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="luminance-range">Boost Amount</label>
+                  <span id="luminance-value">10%</span>
+                </div>
+                <input id="luminance-range" type="range" min="0" max="100" step="1" value="10" />
+                <p id="luminance-note" class="slider-note" hidden>Dark pixels &lt; 50%, feature disabled.</p>
+              </div>
+            </div>
+
+            <div class="visual-group">
+              <h3 class="visual-group-title">Particle Parameters</h3>
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="density-range">Particle Density</label>
+                  <span id="density-value">80%</span>
+                </div>
+                <input id="density-range" type="range" min="0" max="100" step="1" value="80" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="size-range">Particle Size</label>
+                  <span id="size-value">2 px</span>
+                </div>
+                <input id="size-range" type="range" min="1" max="10" step="0.5" value="2" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="diffusion-range">Edge Diffusion</label>
+                  <span id="diffusion-value">50</span>
+                </div>
+                <input id="diffusion-range" type="range" min="0" max="200" step="5" value="50" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="base-noise-range">Base Noise</label>
+                  <span id="base-noise-value">5.0</span>
+                </div>
+                <input id="base-noise-range" type="range" min="0" max="50" step="0.5" value="5" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="motion-range">Audio Sensitivity</label>
+                  <span id="motion-value">0.1x</span>
+                </div>
+                <input id="motion-range" type="range" min="0" max="3" step="0.1" value="0.1" />
+              </div>
+            </div>
+
+            <div class="visual-group">
+              <h3 class="visual-group-title">Play / Pause Transition (ms)</h3>
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="pause-time-range">Pause Fade</label>
+                  <span id="pause-time-value">400</span>
+                </div>
+                <input id="pause-time-range" type="range" min="0" max="3000" step="50" value="400" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="play-time-range">Play Fade</label>
+                  <span id="play-time-value">1400</span>
+                </div>
+                <input id="play-time-range" type="range" min="0" max="3000" step="50" value="1400" />
+              </div>
+            </div>
+
+            <div class="visual-group">
+              <h3 class="visual-group-title">Image Transition Speeds (ms)</h3>
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="explode-jump-range">1. Fly Out Burst</label>
+                  <span id="explode-jump-value">800</span>
+                </div>
+                <input id="explode-jump-range" type="range" min="0" max="2000" step="50" value="800" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="explode-hold-range">2. Hold Chaos</label>
+                  <span id="explode-hold-value">0</span>
+                </div>
+                <input id="explode-hold-range" type="range" min="0" max="3000" step="100" value="0" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="crossfade-range">3. Fade In New Image</label>
+                  <span id="crossfade-value">2100</span>
+                </div>
+                <input id="crossfade-range" type="range" min="0" max="3000" step="100" value="2100" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="gather-range">4. Snap Together</label>
+                  <span id="gather-value">900</span>
+                </div>
+                <input id="gather-range" type="range" min="0" max="3000" step="100" value="900" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="hold-zero-range">5. Hold Solid (Beat Sync)</label>
+                  <span id="hold-zero-value">1000 - 6000ms</span>
+                </div>
+                <input id="hold-zero-range" type="range" min="1000" max="6000" step="100" value="1000" disabled />
+                <p class="slider-note">Waits for a strong kick/bass beat within 1-6s.</p>
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="recover-range">6. Ease Edge Diffusion</label>
+                  <span id="recover-value">0</span>
+                </div>
+                <input id="recover-range" type="range" min="0" max="2000" step="50" value="0" />
+              </div>
+            </div>
+
+            <div class="visual-group">
+              <h3 class="visual-group-title">Transition Effects</h3>
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="bridge-density-range">Bridge Particles Amount</label>
+                  <span id="bridge-density-value">47%</span>
+                </div>
+                <input id="bridge-density-range" type="range" min="0" max="100" step="1" value="47" />
+              </div>
+
+              <div class="slider-group">
+                <div class="slider-head">
+                  <label for="bridge-intensity-range">Bridge Effect Intensity</label>
+                  <span id="bridge-intensity-value">0.3</span>
+                </div>
+                <input id="bridge-intensity-range" type="range" min="0" max="2" step="0.1" value="0.3" />
+              </div>
+            </div>
+          </section>
+
+          <p id="status" class="status-line">等待连接 Apple Music。</p>
+        </div>
+      </aside>
+
+      <section id="stage" class="particle-stage">
+        <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+        <div class="stage-toolbar">
+          <button id="toolbar-collapse-button" class="toolbar-handle-button" type="button" aria-label="Toggle toolbar options">></button>
+          <div id="stage-toolbar-actions" class="stage-toolbar-actions">
+            <button id="fullscreen-button" class="stage-toolbar-button" type="button">网页全屏</button>
+            <button id="toggle-sidebar-button" class="stage-toolbar-button is-active" type="button">隐藏控制栏</button>
+            <button id="toggle-player-button" class="stage-toolbar-button is-active" type="button">隐藏播放器</button>
+          </div>
+        </div>
+
+        <div id="stage-placeholder" class="stage-placeholder" hidden>
+          <p class="section-kicker">Now Playing Artwork</p>
+          <h2 id="stage-placeholder-title">连接 Apple Music 后选择一首歌</h2>
+          <p id="stage-placeholder-copy">封面会自动成为粒子图，底部播放器会同步真实播放状态。</p>
+        </div>
+
+        <section id="player-overlay" class="player-overlay">
+          <div class="player-head">
+            <div class="player-copy">
+              <p id="player-track-title" class="player-track-title">未在播放</p>
+              <p id="player-track-meta" class="player-track-meta">连接 Apple Music 后即可播放歌曲、专辑或播放列表</p>
+            </div>
+
+            <div class="player-meta-actions">
+              <button id="favorite-button" class="icon-pill-button" type="button" aria-label="Favorite current track">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 3.75l2.58 5.22 5.76.84-4.17 4.06.98 5.73L12 16.88l-5.15 2.72.99-5.73-4.18-4.06 5.77-.84L12 3.75z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+
+              <div class="menu-wrap">
+                <button id="menu-button" class="icon-pill-button" type="button" aria-label="More options">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="5" cy="12" r="1.8" fill="currentColor" />
+                    <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+                    <circle cx="19" cy="12" r="1.8" fill="currentColor" />
+                  </svg>
+                </button>
+
+                <div id="player-menu" class="player-menu" hidden>
+                  <a id="player-open-link" href="https://music.apple.com/" target="_blank" rel="noreferrer">在 Apple Music 打开</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="player-progress-row">
+            <span id="elapsed-time" class="time-code">0:00</span>
+
+            <div id="progress-shell" class="slider-shell progress-shell" style="--value: 0">
+              <div class="slider-rail"></div>
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+              <input id="progress-slider" class="slider-input" type="range" min="0" max="1000" step="1" value="0" />
+            </div>
+
+            <span id="remaining-time" class="time-code">-0:00</span>
+          </div>
+
+          <div class="player-controls">
+            <button id="shuffle-button" class="player-control is-outer" type="button" aria-label="Toggle shuffle">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M17 3h4v4M21 3l-6.5 6.5M3 7h3l4.4 4.4M3 17h3l12-12M14 14.5L17 17h4v4M21 17l-2.5 2.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.7"
+                />
+              </svg>
+            </button>
+
+            <button id="previous-button" class="player-control" type="button" aria-label="Previous track">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 5v14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                <path d="M18 6l-8 6 8 6V6z" fill="currentColor" />
+              </svg>
+            </button>
+
+            <button
+              id="play-toggle-button"
+              class="player-control is-primary"
+              type="button"
+              aria-label="Play or pause"
+              aria-pressed="false"
+              data-playback-state="paused"
+            >
+              <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 6.5l9 5.5-9 5.5V6.5z" fill="currentColor" />
+              </svg>
+              <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true" hidden>
+                <path d="M8 6h3.2v12H8zm4.8 0H16v12h-3.2z" fill="currentColor" />
+              </svg>
+            </button>
+
+            <button id="next-button" class="player-control" type="button" aria-label="Next track">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 5v14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                <path d="M6 6l8 6-8 6V6z" fill="currentColor" />
+              </svg>
+            </button>
+
+            <button id="repeat-button" class="player-control is-outer" type="button" aria-label="Toggle repeat">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M17 7h2.5A1.5 1.5 0 0121 8.5v2.5M21 11l-2.5-2.5M7 17H4.5A1.5 1.5 0 013 15.5V13M3 13l2.5 2.5M7 7h10M17 17H7"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.7"
+                />
+              </svg>
+              <span id="repeat-mode-indicator" class="player-control-indicator" hidden>1</span>
+            </button>
+          </div>
+
+          <div class="volume-row">
+            <span class="volume-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M4 9h4l5-4v14l-5-4H4zM17 9.5a3.5 3.5 0 010 5M18.5 6.5a7 7 0 010 11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.8"
+                />
+              </svg>
+            </span>
+
+            <div id="volume-shell" class="slider-shell volume-shell" style="--value: 0.6">
+              <div class="slider-rail"></div>
+              <div class="slider-fill"></div>
+              <div class="slider-thumb"></div>
+              <input id="volume-slider" class="slider-input" type="range" min="0" max="1000" step="1" value="600" />
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <template id="search-result-template">
+      <article class="search-card">
+        <div class="search-card-art">
+          <img class="search-artwork" alt="" />
+        </div>
+
+        <div class="search-copy-block">
+          <div class="search-copy-topline">
+            <p class="search-title"></p>
+            <span class="search-type-badge"></span>
+          </div>
+          <p class="search-subtitle"></p>
+          <p class="search-supporting"></p>
+        </div>
+
+        <div class="search-actions">
+          <button class="ghost-button search-detail-button" type="button" hidden>查看曲目</button>
+          <button class="ghost-button search-play-button" type="button">播放</button>
+          <a class="search-open-link" target="_blank" rel="noreferrer">打开</a>
+        </div>
+      </article>
+    </template>
+
+    <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js" async></script>
+    <script type="module" src="./app.js?v=20260503c"></script>
+  </body>
+</html>

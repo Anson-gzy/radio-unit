@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sonic Particles Apple Music Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="auth-route-body">
+    <main class="auth-route-shell">
+      <section class="auth-route-card">
+        <p class="panel-kicker">Apple Music Redirect</p>
+        <h1 class="auth-route-title">正在接通你的 Apple Music</h1>
+        <p class="auth-route-copy">
+          这个页面会自动尝试完成 MusicKit 网页授权。成功后会回到 Sonic Particles 首页，并把 `musicUserToken` 与 storefront 带回去显示。
+        </p>
+
+        <p id="login-status" class="auth-state-pill">检查 Apple Music 配置中</p>
+        <p id="login-detail" class="auth-hint">首次进入时会先确认 developer token 是否已经在本地服务端准备好。</p>
+
+        <div class="auth-route-actions">
+          <button id="retry-button" type="button" hidden>继续关联 Apple Music</button>
+          <a id="return-link" class="track-link" href="./">先回首页</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js" async></script>
+    <script type="module" src="./apple-music-login.js?v=20260503c"></script>
+  </body>
+</html>

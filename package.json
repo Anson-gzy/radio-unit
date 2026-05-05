@@ -1,0 +1,15 @@
+{
+  "name": "radio-unit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Personal AI radio scaffold with music provider integrations.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "node --test src/01-external-context/brain/test/*.test.js src/01-external-context/music/test/*.test.js src/01-external-context/voice/test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
