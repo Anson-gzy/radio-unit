@@ -275,7 +275,7 @@ async function handleAppleMusicIdentity(request, response) {
         storefrontId: result?.storefront?.id || '',
         storefrontName: result?.storefront?.attributes?.name || '',
         defaultLanguageTag: result?.storefront?.attributes?.defaultLanguageTag || '',
-        note: 'Apple Music Web 授权可直接拿到 musicUserToken 和 storefront 信息；Apple 账户本身的内部账号 ID 不通过 MusicKit Web 暴露。',
+        note: 'Apple Music Web authorization can return the musicUserToken and storefront information directly; the internal Apple account ID itself is not exposed through MusicKit Web.',
       },
     });
   } catch (error) {

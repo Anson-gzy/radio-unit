@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,22 +13,22 @@
     <main class="auth-route-shell">
       <section class="auth-route-card">
         <p class="panel-kicker">Apple Music Redirect</p>
-        <h1 class="auth-route-title">正在接通你的 Apple Music</h1>
+        <h1 class="auth-route-title">Connecting to Apple Music</h1>
         <p class="auth-route-copy">
-          这个页面会自动尝试完成 MusicKit 网页授权。成功后会回到 Sonic Particles 首页，并把 `musicUserToken` 与 storefront 带回去显示。
+          This page automatically completes the MusicKit web authorization flow. After success, it returns to Sonic Particles and restores the `musicUserToken` and storefront.
         </p>
 
-        <p id="login-status" class="auth-state-pill">检查 Apple Music 配置中</p>
-        <p id="login-detail" class="auth-hint">首次进入时会先确认 developer token 是否已经在本地服务端准备好。</p>
+        <p id="login-status" class="auth-state-pill">Checking Apple Music configuration</p>
+        <p id="login-detail" class="auth-hint">On first load, the page verifies that the local server is ready with a developer token.</p>
 
         <div class="auth-route-actions">
-          <button id="retry-button" type="button" hidden>继续关联 Apple Music</button>
-          <a id="return-link" class="track-link" href="./">先回首页</a>
+          <button id="retry-button" type="button" hidden>Continue with Apple Music</button>
+          <a id="return-link" class="track-link" href="./">Return to Home</a>
         </div>
       </section>
     </main>
 
     <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js" async></script>
-    <script type="module" src="./apple-music-login.js?v=20260503c"></script>
+    <script type="module" src="./apple-music-login.js?v=20260505a"></script>
   </body>
 </html>

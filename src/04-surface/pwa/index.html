@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +17,7 @@
       <aside class="control-dock">
         <div class="control-dock-header">
           <h1>Sonic Particles</h1>
-          <p class="dock-copy">Audio-driven waveform particle visualizer, now driven by Apple Music artwork and playback state.</p>
+          <p class="dock-copy">An audio-reactive particle visualizer driven by Apple Music artwork and live playback state.</p>
         </div>
 
         <div class="control-dock-body">
@@ -25,16 +25,16 @@
             <div class="section-head">
               <div class="section-head-copy">
                 <p class="section-kicker">Apple Music</p>
-                <p id="apple-auth-state" class="auth-state-pill">检查 Apple Music 配置中</p>
+                <p id="apple-auth-state" class="auth-state-pill">Checking Apple Music configuration</p>
               </div>
-              <span id="identity-badge" class="identity-badge">未连接</span>
+              <span id="identity-badge" class="identity-badge">Disconnected</span>
             </div>
 
-            <p id="apple-auth-hint" class="section-copy">页面会先确认本地服务端是否已经准备好 developer token。</p>
+            <p id="apple-auth-hint" class="section-copy">This page first checks whether the local server is ready with a developer token.</p>
 
             <div class="stacked-actions">
-              <button id="apple-connect-button" class="primary-button" type="button">连接 Apple Music</button>
-              <button id="apple-disconnect-button" class="ghost-button" type="button">断开连接</button>
+              <button id="apple-connect-button" class="primary-button" type="button">Connect Apple Music</button>
+              <button id="apple-disconnect-button" class="ghost-button" type="button">Disconnect</button>
             </div>
 
             <label class="field-block">
@@ -43,8 +43,8 @@
             </label>
 
             <div class="info-block">
-              <span class="field-label">身份信息</span>
-              <p id="apple-id-summary" class="section-copy">授权成功后，这里会显示 Apple Music 账户对应的 storefront。</p>
+              <span class="field-label">Identity</span>
+              <p id="apple-id-summary" class="section-copy">After authorization, this area shows the storefront linked to the Apple Music account.</p>
             </div>
           </section>
 
@@ -52,13 +52,13 @@
             <div class="section-head">
               <div class="section-head-copy">
                 <p class="section-kicker">Sidebar Mode</p>
-                <p class="section-copy compact-copy">在 GitHub 原版视觉参数侧栏和 Apple Music 选歌界面之间切换。</p>
+                <p class="section-copy compact-copy">Switch between the original particle controls and the Apple Music browser.</p>
               </div>
             </div>
 
             <div class="mode-switch" role="tablist" aria-label="Sidebar Modes">
-              <button class="mode-button is-active" type="button" data-mode="visual">视觉参数</button>
-              <button class="mode-button" type="button" data-mode="browser">选歌界面</button>
+              <button class="mode-button is-active" type="button" data-mode="visual">Visual Controls</button>
+              <button class="mode-button" type="button" data-mode="browser">Music Browser</button>
             </div>
           </section>
 
@@ -66,40 +66,40 @@
             <div class="section-head">
               <div class="section-head-copy">
                 <p class="section-kicker">Apple Music Browser</p>
-                <p class="section-copy compact-copy">搜索歌曲、专辑和播放列表，点结果后直接载入 Apple Music 队列。</p>
+                <p class="section-copy compact-copy">Search songs, albums, and playlists, then load them directly into the Apple Music queue.</p>
               </div>
             </div>
 
             <div id="browser-search-view" class="browser-view">
               <form id="search-form" class="search-form">
-                <label class="field-label" for="search-input">搜索内容</label>
+                <label class="field-label" for="search-input">Search</label>
                 <div class="search-row">
-                  <input id="search-input" type="search" placeholder="Taylor Swift / city pop / workout" />
-                  <button id="search-button" class="primary-button compact-button" type="submit">搜索</button>
+                  <input id="search-input" type="search" placeholder="Taylor Swift / city pop / workout mix" />
+                  <button id="search-button" class="primary-button compact-button" type="submit">Search</button>
                 </div>
               </form>
 
               <div class="search-type-row" role="tablist" aria-label="Search Filters">
-                <button class="type-chip is-active" type="button" data-type="all">全部</button>
-                <button class="type-chip" type="button" data-type="song">歌曲</button>
-                <button class="type-chip" type="button" data-type="album">专辑</button>
-                <button class="type-chip" type="button" data-type="playlist">播放列表</button>
+                <button class="type-chip is-active" type="button" data-type="all">All</button>
+                <button class="type-chip" type="button" data-type="song">Songs</button>
+                <button class="type-chip" type="button" data-type="album">Albums</button>
+                <button class="type-chip" type="button" data-type="playlist">Playlists</button>
               </div>
 
               <div class="search-source-row" role="tablist" aria-label="Search Source">
-                <button class="source-chip is-active" type="button" data-source="catalog">Apple Music 目录</button>
-                <button class="source-chip" type="button" data-source="library">你的资源库</button>
-                <button class="source-chip" type="button" data-source="all">两者一起</button>
+                <button class="source-chip is-active" type="button" data-source="catalog">Catalog</button>
+                <button class="source-chip" type="button" data-source="library">Your Library</button>
+                <button class="source-chip" type="button" data-source="all">Both</button>
               </div>
 
-              <p id="search-status" class="section-copy compact-copy">输入关键词后会通过 Apple Music API 搜索，点结果即可直接载入播放。</p>
+              <p id="search-status" class="section-copy compact-copy">Enter a keyword to search Apple Music and load results directly into playback.</p>
               <div id="search-results" class="search-results"></div>
             </div>
 
             <div id="browser-detail-view" class="browser-view" hidden>
               <div class="detail-toolbar">
-                <button id="detail-back-button" class="ghost-button detail-back-button" type="button">返回搜索</button>
-                <button id="detail-play-all-button" class="primary-button compact-button" type="button">播放全部</button>
+                <button id="detail-back-button" class="ghost-button detail-back-button" type="button">Back to Search</button>
+                <button id="detail-play-all-button" class="primary-button compact-button" type="button">Play All</button>
               </div>
 
               <article class="detail-hero">
@@ -109,13 +109,13 @@
 
                 <div class="detail-hero-copy">
                   <p class="section-kicker" id="detail-kicker">Collection</p>
-                  <h3 id="detail-title" class="detail-title">未选择内容</h3>
-                  <p id="detail-meta" class="section-copy compact-copy">这里会显示专辑或播放列表信息。</p>
-                  <p id="detail-supporting" class="detail-supporting">点一首具体歌曲即可从该集合中开始播放。</p>
+                  <h3 id="detail-title" class="detail-title">Nothing Selected</h3>
+                  <p id="detail-meta" class="section-copy compact-copy">Album or playlist details appear here.</p>
+                  <p id="detail-supporting" class="detail-supporting">Pick a track to start playback from this collection.</p>
                 </div>
               </article>
 
-              <p id="detail-status" class="section-copy compact-copy">正在准备曲目列表。</p>
+              <p id="detail-status" class="section-copy compact-copy">Preparing track list.</p>
               <div id="detail-tracks" class="detail-tracks"></div>
             </div>
           </section>
@@ -124,7 +124,7 @@
             <div class="section-head">
               <div class="section-head-copy">
                 <p class="section-kicker">Visualization Mode</p>
-                <p class="section-copy compact-copy">沿用 GitHub 原版 `ParticleVisualizer` 的控制逻辑，只把图像来源改成 Apple Music 当前封面。</p>
+                <p class="section-copy compact-copy">Keeps the original `ParticleVisualizer` control logic and swaps the image source to the current Apple Music artwork.</p>
               </div>
             </div>
 
@@ -292,7 +292,7 @@
             </div>
           </section>
 
-          <p id="status" class="status-line">等待连接 Apple Music。</p>
+          <p id="status" class="status-line">Waiting for Apple Music connection.</p>
         </div>
       </aside>
 
@@ -302,23 +302,23 @@
         <div class="stage-toolbar">
           <button id="toolbar-collapse-button" class="toolbar-handle-button" type="button" aria-label="Toggle toolbar options">></button>
           <div id="stage-toolbar-actions" class="stage-toolbar-actions">
-            <button id="fullscreen-button" class="stage-toolbar-button" type="button">网页全屏</button>
-            <button id="toggle-sidebar-button" class="stage-toolbar-button is-active" type="button">隐藏控制栏</button>
-            <button id="toggle-player-button" class="stage-toolbar-button is-active" type="button">隐藏播放器</button>
+            <button id="fullscreen-button" class="stage-toolbar-button" type="button">Fullscreen</button>
+            <button id="toggle-sidebar-button" class="stage-toolbar-button is-active" type="button">Hide Sidebar</button>
+            <button id="toggle-player-button" class="stage-toolbar-button is-active" type="button">Hide Player</button>
           </div>
         </div>
 
         <div id="stage-placeholder" class="stage-placeholder" hidden>
           <p class="section-kicker">Now Playing Artwork</p>
-          <h2 id="stage-placeholder-title">连接 Apple Music 后选择一首歌</h2>
-          <p id="stage-placeholder-copy">封面会自动成为粒子图，底部播放器会同步真实播放状态。</p>
+          <h2 id="stage-placeholder-title">Connect Apple Music and choose a track</h2>
+          <p id="stage-placeholder-copy">Artwork becomes the particle image automatically, and the player syncs with live playback.</p>
         </div>
 
         <section id="player-overlay" class="player-overlay">
           <div class="player-head">
             <div class="player-copy">
-              <p id="player-track-title" class="player-track-title">未在播放</p>
-              <p id="player-track-meta" class="player-track-meta">连接 Apple Music 后即可播放歌曲、专辑或播放列表</p>
+              <p id="player-track-title" class="player-track-title">Nothing Playing</p>
+              <p id="player-track-meta" class="player-track-meta">Connect Apple Music to play songs, albums, or playlists</p>
             </div>
 
             <div class="player-meta-actions">
@@ -341,7 +341,7 @@
                 </button>
 
                 <div id="player-menu" class="player-menu" hidden>
-                  <a id="player-open-link" href="https://music.apple.com/" target="_blank" rel="noreferrer">在 Apple Music 打开</a>
+                  <a id="player-open-link" href="https://music.apple.com/" target="_blank" rel="noreferrer">Open in Apple Music</a>
                 </div>
               </div>
             </div>
@@ -460,14 +460,14 @@
         </div>
 
         <div class="search-actions">
-          <button class="ghost-button search-detail-button" type="button" hidden>查看曲目</button>
-          <button class="ghost-button search-play-button" type="button">播放</button>
-          <a class="search-open-link" target="_blank" rel="noreferrer">打开</a>
+          <button class="ghost-button search-detail-button" type="button" hidden>View Tracks</button>
+          <button class="ghost-button search-play-button" type="button">Play</button>
+          <a class="search-open-link" target="_blank" rel="noreferrer">Open</a>
         </div>
       </article>
     </template>
 
     <script src="https://js-cdn.music.apple.com/musickit/v1/musickit.js" async></script>
-    <script type="module" src="./app.js?v=20260503c"></script>
+    <script type="module" src="./app.js?v=20260505a"></script>
   </body>
 </html>

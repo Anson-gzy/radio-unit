@@ -113,7 +113,7 @@ async function resolveAuthorizedUserToken(musicKit, {
     return finalToken;
   }
 
-  throw new Error('Apple Music 账号已完成登录，但网页没有收到授权回传。更像是 Safari 弹窗回调卡住了，不是服务器 identity 接口失败。');
+  throw new Error('Apple Music sign-in finished, but the page never received the authorization callback. This looks more like a Safari popup callback issue than a server identity failure.');
 }
 
 function loadMusicKitScript() {
@@ -132,14 +132,14 @@ function loadMusicKitScript() {
       if (window.MusicKit) {
         resolve(window.MusicKit);
       } else {
-        reject(new Error('MusicKit JS 已加载，但全局对象不可用。'));
+        reject(new Error('MusicKit JS loaded, but the global object is unavailable.'));
       }
     }
 
     window.addEventListener('musickitloaded', handleReady, { once: true });
 
     if (existingScript) {
-      existingScript.addEventListener('error', () => reject(new Error('MusicKit JS 加载失败。')), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('MusicKit JS failed to load.')), { once: true });
       return;
     }
 
@@ -147,7 +147,7 @@ function loadMusicKitScript() {
     script.src = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js';
     script.async = true;
     script.addEventListener('load', handleReady, { once: true });
-    script.addEventListener('error', () => reject(new Error('MusicKit JS 加载失败。')), { once: true });
+    script.addEventListener('error', () => reject(new Error('MusicKit JS failed to load.')), { once: true });
     document.head.appendChild(script);
   });
 
@@ -164,17 +164,17 @@ async function ensureMusicKit() {
   const config = loginState.config || await fetchAppleMusicConfig();
 
   if (!config.enabled) {
-    throw new Error(config.error || 'Apple Music 还没有准备好。');
+    throw new Error(config.error || 'Apple Music is not ready yet.');
   }
 
   if (hasOriginMismatch(config.origin)) {
-    throw new Error(`当前页面是 ${window.location.origin}，但 token origin 配置为 ${config.origin}。`);
+    throw new Error(`The current page origin is ${window.location.origin}, but the token origin is configured as ${config.origin}.`);
   }
 
   await loadMusicKitScript();
 
   if (!window.MusicKit || typeof window.MusicKit.configure !== 'function') {
-    throw new Error('MusicKit JS 未正常初始化。');
+    throw new Error('MusicKit JS did not initialize correctly.');
   }
 
   if (!loginState.musicKit) {
@@ -187,7 +187,7 @@ async function ensureMusicKit() {
   }
 
   if (!loginState.musicKit) {
-    throw new Error('MusicKit JS 已加载，但没有返回可用的授权实例。');
+    throw new Error('MusicKit JS loaded, but no usable authorization instance was returned.');
   }
 
   return loginState.musicKit;
@@ -264,20 +264,20 @@ async function authorizeAndReturn({ autoStarted = false } = {}) {
   retryButton.disabled = true;
 
   try {
-    setStatus('正在发起 Apple Music 授权', 'default');
+    setStatus('Starting Apple Music authorization', 'default');
     setDetail(autoStarted
-      ? '如果浏览器没有继续，请点下方按钮手动完成这一步。'
-      : '请在 Apple Music 授权窗口里完成登录。若 Apple 页面已经通过，这里也会自动轮询 token 继续。');
+      ? 'If the browser does not continue automatically, use the button below to finish this step manually.'
+      : 'Complete sign-in in the Apple Music authorization window. If the Apple page already succeeded, this page will keep polling the token and continue automatically.');
 
     const musicKit = await ensureMusicKit();
     const userToken = readMusicUserToken(musicKit) || await withTimeout(
       resolveAuthorizedUserToken(musicKit),
       35_000,
-      'Apple Music 授权窗口没有正常完成回传。请检查 Safari 内容拦截、跨站跟踪设置或当前网络。',
+      'The Apple Music authorization window did not return successfully. Check Safari content blocking, cross-site tracking settings, or your current network.',
     );
 
     if (!userToken) {
-      throw new Error('Apple Music 没有返回有效的 musicUserToken。');
+      throw new Error('Apple Music did not return a valid musicUserToken.');
     }
 
     const storefront = musicKit.storefrontId || loginState.config?.storefront || '';
@@ -293,12 +293,12 @@ async function authorizeAndReturn({ autoStarted = false } = {}) {
       identity = null;
     }
 
-    setStatus('关联成功', 'connected');
-    setDetail('已拿到 musicUserToken，正在回到 Sonic Particles。');
+    setStatus('Connected successfully', 'connected');
+    setDetail('The musicUserToken has been captured. Returning to Sonic Particles now.');
     window.setTimeout(() => redirectBack(identity), 450);
   } catch (error) {
-    setStatus('等待继续', 'warning');
-    setDetail(error.message || 'Apple Music 授权失败，请再试一次。');
+    setStatus('Waiting for retry', 'warning');
+    setDetail(error.message || 'Apple Music authorization failed. Please try again.');
     retryButton.hidden = false;
     retryButton.disabled = false;
   } finally {
@@ -310,19 +310,19 @@ async function initialize() {
   const returnUrl = buildReturnUrl();
   returnLink.href = returnUrl.toString();
 
-  setStatus('检查 Apple Music 配置中', 'default');
-  setDetail('正在确认服务端 developer token 与当前 origin 是否匹配。');
+  setStatus('Checking Apple Music configuration', 'default');
+  setDetail('Verifying that the server developer token matches the current origin.');
 
   try {
     await fetchAppleMusicConfig();
     await ensureMusicKit();
-    setStatus('准备好了', 'default');
-    setDetail('点击“继续关联 Apple Music”后，会拉起 Apple Music 授权并在成功后回到 Sonic Particles。');
+    setStatus('Ready', 'default');
+    setDetail('Select “Continue with Apple Music” to open authorization and return to Sonic Particles after success.');
     retryButton.hidden = false;
     retryButton.disabled = false;
   } catch (error) {
-    setStatus('Apple Music 未就绪', 'warning');
-    setDetail(error.message || '当前还不能发起 Apple Music 授权。');
+    setStatus('Apple Music not ready', 'warning');
+    setDetail(error.message || 'Apple Music authorization cannot start yet.');
     retryButton.hidden = false;
     retryButton.disabled = false;
   }

@@ -142,9 +142,9 @@ const DEFAULT_VISUAL_SETTINGS = {
 };
 
 const TYPE_LABELS = {
-  song: '歌曲',
-  album: '专辑',
-  playlist: '播放列表',
+  song: 'Song',
+  album: 'Album',
+  playlist: 'Playlist',
 };
 
 function isLibraryIdentifier(value) {
@@ -370,8 +370,8 @@ function requestJson(url, options = {}) {
 
       if (!data || typeof data !== 'object' || Array.isArray(data)) {
         const invalidPayloadMessage = /text\/html/iu.test(contentType) || /^\s*</u.test(payload)
-          ? `接口 ${url} 返回了 HTML 页面，而不是 JSON 数据。`
-          : `接口 ${url} 返回了无法解析的 JSON 数据。`;
+          ? `The endpoint ${url} returned an HTML page instead of JSON.`
+          : `The endpoint ${url} returned JSON that could not be parsed.`;
         throw new Error(!response.ok ? `Request failed: ${response.status}` : invalidPayloadMessage);
       }
 
@@ -442,7 +442,7 @@ async function resolveAuthorizedUserToken(musicKit, {
     return finalToken;
   }
 
-  throw new Error('Apple Music 账号已完成登录，但网页没有收到授权回传。');
+  throw new Error('Apple Music sign-in finished, but the page never received the authorization callback.');
 }
 
 function persistAppleMusicSession() {
@@ -528,7 +528,7 @@ function consumeAppleMusicConnectedFlag() {
     return;
   }
 
-  setStatus('Apple Music 已完成关联。');
+  setStatus('Apple Music connected successfully.');
   url.searchParams.delete('appleMusicConnected');
   replaceCurrentUrl(url);
 }
@@ -549,20 +549,20 @@ function buildAppleMusicLoginUrl() {
 async function redirectToAppleMusicLogin() {
   const config = state.config || await fetchAppleMusicConfig();
   if (!config.enabled) {
-    setAuthState('Apple Music 未就绪', 'warning');
-    setAuthHint(config.error || '请先在服务端配置 developer token。');
-    setStatus('Apple Music 还没配置好，暂时不能发起关联。');
+    setAuthState('Apple Music not ready', 'warning');
+    setAuthHint(config.error || 'Configure the developer token on the server before starting Apple Music authorization.');
+    setStatus('Apple Music is not configured yet, so authorization cannot start.');
     return;
   }
 
   if (hasOriginMismatch(config.origin)) {
-    setAuthState('Origin 不匹配', 'warning');
-    setAuthHint(`当前页面是 ${window.location.origin}，但 token origin 配置为 ${config.origin}。`);
+    setAuthState('Origin mismatch', 'warning');
+    setAuthHint(`The current page origin is ${window.location.origin}, but the token origin is configured as ${config.origin}.`);
     return;
   }
 
-  setAuthState('准备跳转授权', 'default');
-  setAuthHint('当前浏览器没有正常拉起 MusicKit 授权，正在切到专用连接页。');
+  setAuthState('Redirecting to authorization', 'default');
+  setAuthHint('The current browser did not open MusicKit authorization correctly, so the dedicated connection page will open instead.');
   window.location.assign(buildAppleMusicLoginUrl());
 }
 
@@ -1511,14 +1511,14 @@ function renderBrowserDetail() {
 
   setArtworkImageSource(elements.detailArtwork, detail.artworkUrl, detail.title || detail.subtitle || '');
   elements.detailKicker.textContent = detail.type === 'playlist' ? 'Playlist Tracks' : 'Album Tracks';
-  elements.detailTitle.textContent = detail.title || '未命名集合';
+  elements.detailTitle.textContent = detail.title || 'Untitled Collection';
   elements.detailMeta.textContent = [detail.subtitle, detail.supporting].filter(Boolean).join(' · ') || 'Apple Music';
   elements.detailSupporting.textContent = detail.type === 'playlist'
-    ? '从这里挑一首歌开始播，也可以直接整张播放列表连续播放。'
-    : '从这里挑一首歌开始播，也可以直接整张专辑连续播放。';
+    ? 'Pick a track to start playback here, or play the full playlist continuously.'
+    : 'Pick a track to start playback here, or play the full album continuously.';
   elements.detailStatus.textContent = state.detailBusy
-    ? '正在加载曲目列表…'
-    : (state.detailTracks.length > 0 ? `已加载 ${state.detailTracks.length} 首曲目。` : '没有拿到可播放的曲目。');
+    ? 'Loading track list...'
+    : (state.detailTracks.length > 0 ? `Loaded ${state.detailTracks.length} tracks.` : 'No playable tracks were returned.');
   elements.detailPlayAllButton.disabled = state.detailBusy || state.detailTracks.length === 0;
 
   const fragment = document.createDocumentFragment();
@@ -1555,7 +1555,7 @@ function renderBrowserDetail() {
     playButton.className = 'ghost-button detail-track-play-button';
     playButton.type = 'button';
     playButton.dataset.index = String(index);
-    playButton.textContent = '播放';
+    playButton.textContent = 'Play';
 
     row.append(trackIndex, copy, playButton);
     fragment.appendChild(row);
@@ -1577,8 +1577,8 @@ function applyUiVisibility() {
   elements.appShell.classList.toggle('is-toolbar-collapsed', !state.showToolbarOptions);
   elements.toggleSidebarButton.classList.toggle('is-active', state.showSidebar);
   elements.togglePlayerButton.classList.toggle('is-active', state.showPlayer);
-  elements.toggleSidebarButton.textContent = state.showSidebar ? '隐藏控制栏' : '显示控制栏';
-  elements.togglePlayerButton.textContent = state.showPlayer ? '隐藏播放器' : '显示播放器';
+  elements.toggleSidebarButton.textContent = state.showSidebar ? 'Hide Sidebar' : 'Show Sidebar';
+  elements.togglePlayerButton.textContent = state.showPlayer ? 'Hide Player' : 'Show Player';
   elements.toolbarCollapseButton.textContent = state.showToolbarOptions ? '>' : '<';
   window.requestAnimationFrame(() => {
     particleVisualizer.handleResize();
@@ -1605,7 +1605,7 @@ function toggleToolbarOptionsVisibility() {
 
 function syncFullscreenState() {
   state.isFullscreen = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
-  elements.fullscreenButton.textContent = state.isFullscreen ? '退出全屏' : '网页全屏';
+  elements.fullscreenButton.textContent = state.isFullscreen ? 'Exit Fullscreen' : 'Fullscreen';
   window.requestAnimationFrame(() => {
     particleVisualizer.handleResize();
   });
@@ -1626,7 +1626,7 @@ async function toggleFullscreenMode() {
       document.webkitExitFullscreen();
     }
   } catch (error) {
-    setStatus(error.message || '进入全屏失败。');
+    setStatus(error.message || 'Failed to enter fullscreen.');
   } finally {
     syncFullscreenState();
   }
@@ -1652,14 +1652,14 @@ function loadMusicKitScript() {
       if (window.MusicKit) {
         resolve(window.MusicKit);
       } else {
-        reject(new Error('MusicKit JS 已加载，但全局对象不可用。'));
+        reject(new Error('MusicKit JS loaded, but the global object is unavailable.'));
       }
     }
 
     window.addEventListener('musickitloaded', handleReady, { once: true });
 
     if (existingScript) {
-      existingScript.addEventListener('error', () => reject(new Error('MusicKit JS 加载失败。')), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('MusicKit JS failed to load.')), { once: true });
       return;
     }
 
@@ -1667,7 +1667,7 @@ function loadMusicKitScript() {
     script.src = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js';
     script.async = true;
     script.addEventListener('load', handleReady, { once: true });
-    script.addEventListener('error', () => reject(new Error('MusicKit JS 加载失败。')), { once: true });
+    script.addEventListener('error', () => reject(new Error('MusicKit JS failed to load.')), { once: true });
     document.head.appendChild(script);
   });
 
@@ -1758,13 +1758,13 @@ async function ensureMusicKit() {
   const config = state.config || await fetchAppleMusicConfig();
 
   if (!config.enabled) {
-    throw new Error(config.error || 'Apple Music 还没有准备好。');
+    throw new Error(config.error || 'Apple Music is not ready yet.');
   }
 
   await loadMusicKitScript();
 
   if (!window.MusicKit || typeof window.MusicKit.configure !== 'function') {
-    throw new Error('MusicKit JS 未正常初始化。');
+    throw new Error('MusicKit JS did not initialize correctly.');
   }
 
   if (!state.musicKit) {
@@ -1778,7 +1778,7 @@ async function ensureMusicKit() {
   }
 
   if (!state.musicKit) {
-    throw new Error('MusicKit JS 已加载，但没有返回可用的授权实例。');
+    throw new Error('MusicKit JS loaded, but no usable authorization instance was returned.');
   }
 
   bindMusicKitEvents();
@@ -1828,11 +1828,11 @@ function renderAppleMusicUi() {
   if (!config) {
     elements.connectButton.disabled = true;
     elements.disconnectButton.disabled = !state.connected;
-    setAuthState('检查 Apple Music 配置中', 'default');
-    setAuthHint('正在确认服务端是否已经准备好 developer token。');
-    elements.identityBadge.textContent = '检查中';
+    setAuthState('Checking Apple Music setup', 'default');
+    setAuthHint('Checking whether the server is ready with a developer token.');
+    elements.identityBadge.textContent = 'Checking';
     elements.identityBadge.classList.remove('is-connected');
-    elements.identitySummary.textContent = '读取到服务端配置后，这里会显示可连接状态和 Apple Music storefront。';
+    elements.identitySummary.textContent = 'Once the server configuration is loaded, the connection status and Apple Music storefront will appear here.';
     return;
   }
 
@@ -1843,42 +1843,42 @@ function renderAppleMusicUi() {
   elements.disconnectButton.disabled = !state.connected;
 
   if (!ready) {
-    setAuthState('Apple Music 未就绪', 'warning');
-    setAuthHint(config?.error || '请先在服务端配置 developer token，页面才能发起 Apple Music 授权。');
-    elements.identityBadge.textContent = '未连接';
+    setAuthState('Apple Music not ready', 'warning');
+    setAuthHint(config?.error || 'Please configure the developer token on the server before starting Apple Music authorization.');
+    elements.identityBadge.textContent = 'Disconnected';
     elements.identityBadge.classList.remove('is-connected');
-    elements.identitySummary.textContent = '授权成功后，这里会显示 Apple Music 账户对应的 storefront。';
+    elements.identitySummary.textContent = 'After authorization, the storefront for this Apple Music account will appear here.';
     return;
   }
 
   if (originMismatch) {
-    setAuthState('Origin 不匹配', 'warning');
-    setAuthHint(`当前页面是 ${window.location.origin}，但 token origin 配置为 ${config.origin}。`);
-    elements.identityBadge.textContent = '受限';
+    setAuthState('Origin mismatch', 'warning');
+    setAuthHint(`The current page origin is ${window.location.origin}, but the token origin is configured as ${config.origin}.`);
+    elements.identityBadge.textContent = 'Restricted';
     elements.identityBadge.classList.remove('is-connected');
     return;
   }
 
   if (state.connected) {
     const storefrontLabel = state.identity?.storefrontId || state.storefront || config.storefront || 'us';
-    setAuthState(`已连接 Apple Music · ${storefrontLabel}`, 'connected');
-    setAuthHint('可以直接搜索歌曲、专辑和播放列表，并把它们送进当前播放器队列。');
+    setAuthState(`Connected to Apple Music · ${storefrontLabel}`, 'connected');
+    setAuthHint('You can search songs, albums, and playlists and send them directly to the current playback queue.');
     elements.identityBadge.textContent = state.identity?.storefrontName || storefrontLabel.toUpperCase();
     elements.identityBadge.classList.add('is-connected');
-    elements.identitySummary.textContent = state.identity?.note || 'Apple Music 授权已完成，可以直接播放完整内容。';
+    elements.identitySummary.textContent = state.identity?.note || 'Apple Music authorization is complete. Full playback is now available.';
     return;
   }
 
-  setAuthState('可连接', 'default');
-  setAuthHint('连接完成后，播放器会直接控制 Apple Music 的真实播放队列。');
-  elements.identityBadge.textContent = '未连接';
+  setAuthState('Ready to connect', 'default');
+  setAuthHint('Once connected, the player will control the real Apple Music playback queue directly.');
+  elements.identityBadge.textContent = 'Disconnected';
   elements.identityBadge.classList.remove('is-connected');
-  elements.identitySummary.textContent = '授权成功后，这里会显示 Apple Music 账户对应的 storefront。';
+  elements.identitySummary.textContent = 'After authorization, the storefront for this Apple Music account will appear here.';
 }
 
 async function initializeAppleMusic() {
-  setAuthState('检查 Apple Music 配置中', 'default');
-  setAuthHint('正在确认服务端是否已经准备好 developer token。');
+  setAuthState('Checking Apple Music setup', 'default');
+  setAuthHint('Checking whether the server is ready with a developer token.');
 
   try {
     await fetchAppleMusicConfig();
@@ -1892,7 +1892,7 @@ async function initializeAppleMusic() {
     console.error('Apple Music initialization failed:', error);
     state.config = {
       enabled: false,
-      error: readErrorMessage(error, 'Apple Music 初始化失败。'),
+      error: readErrorMessage(error, 'Apple Music initialization failed.'),
       storefront: 'us',
       origin: '',
     };
@@ -1905,31 +1905,31 @@ async function initializeAppleMusic() {
 async function connectAppleMusic() {
   sessionStorage.removeItem(APPLE_AUTOCONNECT_DISABLED_KEY);
   elements.connectButton.disabled = true;
-  setAuthState('正在发起授权', 'default');
-  setAuthHint('如果当前浏览器不能正常弹出授权，会自动切到专用连接页。');
+  setAuthState('Starting authorization', 'default');
+  setAuthHint('If this browser cannot open the authorization flow properly, it will switch to the dedicated connection page.');
 
   try {
     const musicKit = await ensureMusicKit();
     const userToken = readMusicUserToken(musicKit) || await withTimeout(
       resolveAuthorizedUserToken(musicKit),
       24_000,
-      'Apple Music 授权窗口没有正常打开。',
+      'The Apple Music authorization window did not open correctly.',
     );
 
     if (!userToken) {
-      throw new Error('Apple Music 没有返回有效的 musicUserToken。');
+      throw new Error('Apple Music did not return a valid musicUserToken.');
     }
 
     state.userToken = userToken;
     syncStateFromMusicKit();
     await fetchAppleMusicIdentity();
-    setStatus('Apple Music 已连接，可以开始选歌了。');
+    setStatus('Apple Music is connected. You can start choosing music now.');
     syncPlayerUi();
   } catch (error) {
-    setStatus('当前浏览器没有完成授权，准备切到专用连接页。');
+    setStatus('Authorization did not complete in this browser. Switching to the dedicated connection page.');
     await redirectToAppleMusicLogin().catch(() => {
-      setAuthState('连接失败', 'warning');
-      setAuthHint(error.message || 'Apple Music 授权失败。');
+      setAuthState('Connection failed', 'warning');
+      setAuthHint(error.message || 'Apple Music authorization failed.');
     });
   } finally {
     renderAppleMusicUi();
@@ -1952,7 +1952,7 @@ async function disconnectAppleMusic() {
   clearAppleMusicSession();
   renderAppleMusicUi();
   syncPlayerUi({ forceArtwork: true });
-  setStatus('Apple Music 关联已断开。');
+  setStatus('Apple Music disconnected.');
 }
 
 function getArtworkTemplate(item) {
@@ -2151,7 +2151,7 @@ function renderPlayerButtons(meta, snapshot) {
   const isPlaying = Boolean(snapshot.isPlaying);
   renderPlaybackToggle(isPlaying);
   elements.playToggleButton.setAttribute('aria-label', isPlaying ? 'Pause playback' : 'Play playback');
-  elements.playToggleButton.title = isPlaying ? '暂停' : '播放';
+  elements.playToggleButton.title = isPlaying ? 'Pause' : 'Play';
 
   const queueInteractive = snapshot.hasQueue;
   const playInteractive = queueInteractive || Boolean(meta.id);
@@ -2202,13 +2202,13 @@ function syncPlayerUi({ forceArtwork = false, isPlayingOverride = null } = {}) {
   state.playbackDuration = snapshot.playbackDuration;
   state.volume = snapshot.volume;
 
-  elements.trackTitle.textContent = hasTrack ? meta.title : '未在播放';
+  elements.trackTitle.textContent = hasTrack ? meta.title : 'Nothing playing';
   elements.trackMeta.textContent = hasTrack
     ? [meta.artist, meta.album].filter(Boolean).join(' · ') || 'Apple Music'
-    : '连接 Apple Music 后即可播放歌曲、专辑或播放列表';
+    : 'Connect Apple Music to play songs, albums, or playlists';
 
   elements.playerOpenLink.href = meta.url || 'https://music.apple.com/';
-  elements.playerOpenLink.textContent = meta.url ? '在 Apple Music 打开' : '打开 Apple Music';
+  elements.playerOpenLink.textContent = meta.url ? 'Open in Apple Music' : 'Open Apple Music';
 
   const progressRatio = snapshot.playbackDuration > 0 ? snapshot.playbackTime / snapshot.playbackDuration : 0;
   if (!state.isSeeking) {
@@ -2222,10 +2222,10 @@ function syncPlayerUi({ forceArtwork = false, isPlayingOverride = null } = {}) {
 
   elements.stagePlaceholder.hidden = hasTrack;
   if (!hasTrack) {
-    elements.stagePlaceholderTitle.textContent = state.connected ? '在左侧搜索并播放一首歌' : '连接 Apple Music 后选择一首歌';
+    elements.stagePlaceholderTitle.textContent = state.connected ? 'Search on the left and play a song' : 'Connect Apple Music and choose a song';
     elements.stagePlaceholderCopy.textContent = state.connected
-      ? '封面会自动变成粒子画面，底部播放器会同步真实播放状态。'
-      : '连接成功后即可通过 Apple Music 的真实队列播放歌曲、专辑和播放列表。';
+      ? 'The artwork will automatically become the particle image, and the bottom player will stay synced with real playback.'
+      : 'Once connected, you can play songs, albums, and playlists through the real Apple Music queue.';
   }
 
   const nextArtworkUrl = meta.artworkUrl || '';
@@ -2242,9 +2242,9 @@ function normalizeSongResult(song) {
     id: song.id,
     type: playbackType || 'song',
     queueKey: `${isLibrary ? 'library-' : ''}${playbackType || 'song'}:${song.id}`,
-    title: song.name || '未命名歌曲',
-    subtitle: song.artistName || '未知艺人',
-    supporting: [isLibrary ? '资源库' : '目录', song.albumName || 'Apple Music'].filter(Boolean).join(' · '),
+    title: song.name || 'Untitled Song',
+    subtitle: song.artistName || 'Unknown Artist',
+    supporting: [isLibrary ? 'Library' : 'Catalog', song.albumName || 'Apple Music'].filter(Boolean).join(' · '),
     artworkUrl: resolveArtworkUrl(song),
     url: song.url || '',
     playParams: song.playParams || song.attributes?.playParams || null,
@@ -2260,9 +2260,9 @@ function normalizeAlbumResult(album) {
     id: album.id,
     type: playbackType || 'album',
     queueKey: `${isLibrary ? 'library-' : ''}${playbackType || 'album'}:${album.id}`,
-    title: attributes.name || '未命名专辑',
+    title: attributes.name || 'Untitled Album',
     subtitle: attributes.artistName || 'Apple Music',
-    supporting: [isLibrary ? '资源库' : '目录', attributes.trackCount ? `${attributes.trackCount} 首` : '专辑'].join(' · '),
+    supporting: [isLibrary ? 'Library' : 'Catalog', attributes.trackCount ? `${attributes.trackCount} tracks` : 'Album'].join(' · '),
     artworkUrl: resolveArtworkUrl(album),
     url: attributes.url || '',
     playParams: attributes.playParams || null,
@@ -2279,9 +2279,9 @@ function normalizePlaylistResult(playlist) {
     id: playlist.id,
     type: playbackType || 'playlist',
     queueKey: `${isLibrary ? 'library-' : ''}${playbackType || 'playlist'}:${playlist.id}`,
-    title: attributes.name || '未命名播放列表',
+    title: attributes.name || 'Untitled Playlist',
     subtitle: attributes.curatorName || 'Apple Music',
-    supporting: [isLibrary ? '资源库' : '目录', readTextValue(attributes.description) || '播放列表'].join(' · '),
+    supporting: [isLibrary ? 'Library' : 'Catalog', readTextValue(attributes.description) || 'Playlist'].join(' · '),
     artworkUrl: resolveArtworkUrl(playlist),
     url: attributes.url || '',
     playParams: attributes.playParams || null,
@@ -2293,7 +2293,7 @@ function normalizePlaylistResult(playlist) {
 function normalizeCollectionTrackResult(track, index = 0) {
   return {
     id: track.id || `track-${index}`,
-    title: track.name || track.attributes?.name || `曲目 ${index + 1}`,
+    title: track.name || track.attributes?.name || `Track ${index + 1}`,
     subtitle: track.artistName || track.attributes?.artistName || 'Apple Music',
     albumName: track.albumName || track.attributes?.albumName || '',
     durationMs: Number(track.durationMs || track.attributes?.durationInMillis || 0) || 0,
@@ -2319,8 +2319,8 @@ function renderSearchResults() {
     const empty = document.createElement('p');
     empty.className = 'muted-copy';
     empty.textContent = state.searchBusy
-      ? '正在搜索 Apple Music…'
-      : (state.searchQuery ? '没有找到匹配结果，可以换个关键词试试。' : '输入关键词后这里会显示歌曲、专辑和播放列表。');
+      ? 'Searching Apple Music...'
+      : (state.searchQuery ? 'No matching results found. Try a different keyword.' : 'Songs, albums, and playlists will appear here after you enter a keyword.');
     elements.searchResults.appendChild(empty);
     return;
   }
@@ -2351,10 +2351,10 @@ function renderSearchResults() {
     }
     playButton.dataset.queueKey = item.queueKey;
     playButton.textContent = item.queueKey === state.selectedQueueKey
-      ? '正在播放'
-      : (isCollectionType(item.type) ? '播放全部' : '播放');
+      ? 'Playing'
+      : (isCollectionType(item.type) ? 'Play All' : 'Play');
     openLink.href = item.url || 'https://music.apple.com/';
-    openLink.textContent = item.url ? '打开' : 'Apple Music';
+    openLink.textContent = item.url ? 'Open' : 'Apple Music';
 
     fragment.appendChild(cardFragment);
   });
@@ -2370,13 +2370,13 @@ async function searchAppleMusic(query) {
 
   if (!trimmed) {
     state.searchResults = [];
-    setSearchStatus('输入关键词后会通过 Apple Music API 搜索，点结果即可直接载入播放。');
+    setSearchStatus('Enter a keyword to search with the Apple Music API, then click a result to load it for playback.');
     renderSearchResults();
     return;
   }
 
   if (state.searchSource === 'library' && !state.connected) {
-    setSearchStatus('资源库搜索需要先连接 Apple Music。');
+    setSearchStatus('Library search requires an Apple Music connection first.');
     return;
   }
 
@@ -2386,7 +2386,7 @@ async function searchAppleMusic(query) {
 
   state.searchBusy = true;
   elements.searchButton.disabled = true;
-  setSearchStatus('正在搜索 Apple Music…');
+  setSearchStatus('Searching Apple Music...');
   renderSearchResults();
 
   try {
@@ -2410,12 +2410,12 @@ async function searchAppleMusic(query) {
     state.searchResults = normalizeSearchResults(data);
     setSearchStatus(
       resolvedSearchSource === state.searchSource
-        ? `已找到 ${state.searchResults.length} 项内容。`
-        : `未连接 Apple Music，先展示目录中的 ${state.searchResults.length} 项结果。`,
+        ? `Found ${state.searchResults.length} results.`
+        : `Apple Music is not connected yet, so ${state.searchResults.length} catalog results are shown first.`,
     );
   } catch (error) {
     state.searchResults = [];
-    setSearchStatus(error.message || 'Apple Music 搜索失败。');
+    setSearchStatus(error.message || 'Apple Music search failed.');
   } finally {
     state.searchBusy = false;
     elements.searchButton.disabled = false;
@@ -2457,12 +2457,12 @@ async function openCollectionDetail(queueKey) {
       playParams: data.collection?.playParams || item.playParams,
       url: data.collection?.url || item.url,
       trackCount: data.collection?.trackCount || item.trackCount || data.tracks?.length || 0,
-      supporting: [item.isLibrary ? '资源库' : '目录', `${data.tracks?.length || 0} 首`].join(' · '),
+      supporting: [item.isLibrary ? 'Library' : 'Catalog', `${data.tracks?.length || 0} tracks`].join(' · '),
     };
     state.detailTracks = Array.isArray(data.tracks) ? data.tracks.map(normalizeCollectionTrackResult) : [];
   } catch (error) {
     state.detailTracks = [];
-    setStatus(error.message || '加载曲目列表失败。');
+    setStatus(error.message || 'Failed to load track list.');
   } finally {
     state.detailBusy = false;
     renderBrowserDetail();
@@ -2481,7 +2481,7 @@ async function playCollectionTrack(index) {
   }
 
   if (!state.connected) {
-    setStatus('需要先连接 Apple Music 才能开始播放。');
+    setStatus('You need to connect Apple Music before playback can start.');
     await connectAppleMusic();
     if (!state.connected) {
       return;
@@ -2491,7 +2491,7 @@ async function playCollectionTrack(index) {
   try {
     const musicKit = await ensureMusicKit();
     const player = getPlayer();
-    setStatus(`正在载入：${track.title}`);
+    setStatus(`Loading: ${track.title}`);
     state.selectedQueueKey = detail.queueKey;
     renderSearchResults();
     await musicKit.setQueue(queueOptionsForItem(detail));
@@ -2510,9 +2510,9 @@ async function playCollectionTrack(index) {
 
     await musicKit.play();
     syncPlayerUi({ forceArtwork: true, isPlayingOverride: true });
-    setStatus(`正在播放：${track.title}`);
+    setStatus(`Now playing: ${track.title}`);
   } catch (error) {
-    setStatus(readErrorMessage(error, '载入指定曲目失败。'));
+    setStatus(readErrorMessage(error, 'Failed to load the selected track.'));
   }
 }
 
@@ -2562,7 +2562,7 @@ function schedulePlaybackRecovery(error) {
       setPlaybackUiOverride(true);
       const resumedSnapshot = readPlayerSnapshot();
       if (resumedSnapshot.isPlaying) {
-        setStatus('已自动恢复播放。');
+        setStatus('Playback resumed automatically.');
         return;
       }
 
@@ -2577,12 +2577,12 @@ function schedulePlaybackRecovery(error) {
         setPlaybackUiOverride(true);
 
         if (readPlayerSnapshot().isPlaying) {
-          setStatus('已跳过异常曲目并继续播放。');
+          setStatus('Skipped the problematic track and continued playback.');
           return;
         }
       }
 
-      setStatus(`Apple Music 播放失败：${describePlaybackError(error)}`);
+      setStatus(`Apple Music playback failed: ${describePlaybackError(error)}`);
     } finally {
       state.playbackRecoveryPending = false;
     }
@@ -2600,8 +2600,8 @@ function handleMediaPlaybackError(error) {
   state.lastPlaybackErrorSignature = signature;
   setStatus(
     /^unknown error$/iu.test(message)
-      ? 'Apple Music 在自动切歌时返回了未知错误，正在尝试恢复…'
-      : `Apple Music 播放出错：${message}，正在尝试恢复…`,
+      ? 'Apple Music returned an unknown error while auto-advancing. Trying to recover...'
+      : `Apple Music playback error: ${message}. Trying to recover...`,
   );
   schedulePlaybackRecovery(error);
 }
@@ -2613,7 +2613,7 @@ async function playSearchResult(queueKey) {
   }
 
   if (!state.connected) {
-    setStatus('需要先连接 Apple Music 才能开始播放。');
+    setStatus('You need to connect Apple Music before playback can start.');
     await connectAppleMusic();
     if (!state.connected) {
       return;
@@ -2622,22 +2622,22 @@ async function playSearchResult(queueKey) {
 
   try {
     const musicKit = await ensureMusicKit();
-    setStatus(`正在载入 ${TYPE_LABELS[item.type] || item.type}：${item.title}`);
+    setStatus(`Loading ${TYPE_LABELS[item.type] || item.type}: ${item.title}`);
     state.selectedQueueKey = item.queueKey;
     renderSearchResults();
     await musicKit.setQueue(queueOptionsForItem(item));
     await musicKit.play();
     syncPlayerUi({ forceArtwork: true, isPlayingOverride: true });
-    setStatus(`正在播放：${item.title}`);
+    setStatus(`Now playing: ${item.title}`);
   } catch (error) {
-    setStatus(readErrorMessage(error, '载入 Apple Music 队列失败。'));
+    setStatus(readErrorMessage(error, 'Failed to load the Apple Music queue.'));
   }
 }
 
 async function togglePlayback() {
   const snapshot = readPlayerSnapshot();
   if (!snapshot.hasQueue) {
-    setStatus('先在左侧选一首歌、专辑或播放列表。');
+    setStatus('Choose a song, album, or playlist on the left first.');
     return;
   }
 
@@ -2647,15 +2647,15 @@ async function togglePlayback() {
       await musicKit.pause();
       setPlaybackUiOverride(false);
       syncPlayerUi({ isPlayingOverride: false });
-      setStatus('已暂停播放。');
+      setStatus('Playback paused.');
     } else {
       await musicKit.play();
       setPlaybackUiOverride(true);
       syncPlayerUi({ isPlayingOverride: true });
-      setStatus('继续播放中。');
+      setStatus('Playback resumed.');
     }
   } catch (error) {
-    setStatus(readErrorMessage(error, '播放状态切换失败。'));
+    setStatus(readErrorMessage(error, 'Failed to toggle playback state.'));
   }
 }
 
@@ -2663,9 +2663,9 @@ async function skipToNext() {
   try {
     const musicKit = await ensureMusicKit();
     await musicKit.skipToNextItem();
-    setStatus('已切到下一首。');
+    setStatus('Skipped to the next track.');
   } catch (error) {
-    setStatus(error.message || '下一首切换失败。');
+    setStatus(error.message || 'Failed to skip to the next track.');
   }
 }
 
@@ -2673,9 +2673,9 @@ async function skipToPrevious() {
   try {
     const musicKit = await ensureMusicKit();
     await musicKit.skipToPreviousItem();
-    setStatus('已切到上一首。');
+    setStatus('Went back to the previous track.');
   } catch (error) {
-    setStatus(error.message || '上一首切换失败。');
+    setStatus(error.message || 'Failed to go back to the previous track.');
   }
 }
 
@@ -2692,7 +2692,7 @@ async function toggleShuffleMode() {
   }
   player.shuffleMode = nextMode;
   syncPlayerUi();
-  setStatus(nextMode === SHUFFLE_MODE_SONGS ? '随机播放已开启。' : '随机播放已关闭。');
+  setStatus(nextMode === SHUFFLE_MODE_SONGS ? 'Shuffle is on.' : 'Shuffle is off.');
 }
 
 async function toggleRepeatMode() {
@@ -2713,11 +2713,11 @@ async function toggleRepeatMode() {
   syncPlayerUi();
 
   if (nextMode === REPEAT_MODE_ALL) {
-    setStatus('列表循环已开启。');
+    setStatus('Repeat all is on.');
   } else if (nextMode === REPEAT_MODE_ONE) {
-    setStatus('单曲循环已开启。');
+    setStatus('Repeat one is on.');
   } else {
-    setStatus('循环播放已关闭。');
+    setStatus('Repeat is off.');
   }
 }
 
@@ -2729,10 +2729,10 @@ function toggleFavoriteCurrent() {
 
   if (state.favorites.has(trackId)) {
     state.favorites.delete(trackId);
-    setStatus('已从收藏标记中移除。');
+    setStatus('Removed from favorites.');
   } else {
     state.favorites.add(trackId);
-    setStatus('已标记为喜欢。');
+    setStatus('Added to favorites.');
   }
 
   persistFavoriteIds();
@@ -2756,7 +2756,7 @@ async function seekToSliderPosition() {
       await musicKit.seekToTime(nextTime);
     }
   } catch (error) {
-    setStatus(error.message || '调整播放进度失败。');
+    setStatus(error.message || 'Failed to change playback position.');
   } finally {
     state.isSeeking = false;
     syncPlayerUi();
@@ -2858,7 +2858,7 @@ function bindEvents() {
     state.storefront = elements.storefrontInput.value.trim() || 'us';
     persistAppleMusicSession();
     syncUrlState();
-    setStatus(`Storefront 已更新为 ${state.storefront}。`);
+    setStatus(`Storefront updated to ${state.storefront}.`);
   });
 
   const bindVisualRange = (element, key, { rebuild = false } = {}) => {
@@ -2981,7 +2981,7 @@ async function bootstrap() {
     initializeUi();
   } catch (error) {
     console.error('UI bootstrap failed:', error);
-    setStatus(readErrorMessage(error, '页面初始化失败。'));
+    setStatus(readErrorMessage(error, 'Page initialization failed.'));
   }
 
   try {
