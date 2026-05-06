@@ -1,79 +1,56 @@
-# Radio Unit
+# Sonic Particles Front-End
 
-Radio Unit is a modular Node.js scaffold for building an AI-assisted radio workflow with music retrieval, voice generation, runtime orchestration, and a surface layer for interactive control.
+Sonic Particles Front-End is a dark Apple Music playback surface built around the original particle artwork visual treatment. It combines the visual control panel, Apple Music search and library browsing, artwork-driven particle rendering, and a floating playback overlay in one front-end-focused package.
 
-The project is organized as a four-layer system:
+## What It Includes
 
-- `01-external-context`: provider adapters, tests, and user-facing configuration templates
-- `02-local-brain`: request routing, environment loading, scheduling hooks, and orchestration logic
-- `03-runtime-aggregation`: prompt assets and runtime context assembly
-- `04-surface`: HTTP contract and interactive surface files
+- Original particle visual behavior with Apple Music artwork as the image source
+- Apple Music connection flow with a dedicated fallback login surface
+- Search for songs, albums, and playlists from both catalog and library
+- Drill into albums and playlists to choose a specific track
+- Floating player overlay with progress, volume, shuffle, repeat, favorite, and transport controls
+- Fullscreen mode plus toggleable sidebar and player visibility
 
-## Highlights
-
-- Provider-based architecture for music, model, and voice integrations
-- Apple Music token generation support from MusicKit credentials
-- Local routing layer for search, identity lookup, health checks, and runtime actions
-- Prompt and context separation for easier experimentation
-- Test coverage for provider modules
-
-## Project Structure
+## Main Front-End Files
 
 ```text
-src/
-  01-external-context/
-    brain/
-    music/
-    user/
-    voice/
-  02-local-brain/
-    context.js
-    router.js
-    scheduler.js
-    tts.js
-  03-runtime-aggregation/
-    prompts/
-  04-surface/
-    http/
-    pwa/
-server.js
-package.json
+src/04-surface/pwa/
+  index.html
+  styles.css
+  app.js
+  apple-music-login.html
+  apple-music-login.js
 ```
 
 ## Requirements
 
 - Node.js 18 or newer
+- Apple Music developer credentials or a pre-generated developer token
 
-## Getting Started
+## Local Setup
 
-1. Install dependencies if you add any runtime packages later.
-2. Copy the example environment file:
+1. Copy the example environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-3. Fill in the providers you want to use.
-4. Start the local server:
+2. Fill in the Apple Music values you want to use:
+
+- `APPLE_MUSIC_DEVELOPER_TOKEN`
+- or `APPLE_MUSIC_TEAM_ID`, `APPLE_MUSIC_KEY_ID`, and `APPLE_MUSIC_PRIVATE_KEY_PATH`
+- `APPLE_MUSIC_STOREFRONT`
+- `APPLE_MUSIC_TOKEN_ORIGIN`
+
+3. Start the local server:
 
 ```bash
 npm run dev
 ```
 
-The default server port is `4173`.
+The surface is served on port `4173` by default unless `PORT` is overridden.
 
-## Environment Variables
-
-The example file documents the main integration points:
-
-- model provider credentials
-- TTS provider credentials
-- Netease API base URL
-- Apple Music developer token or MusicKit key settings
-
-Do not commit your real `.env`, MusicKit private key, or any generated developer token.
-
-## Scripts
+## Available Scripts
 
 ```bash
 npm run dev
@@ -83,6 +60,6 @@ npm run test
 
 ## Notes
 
-- `.env.example` is safe to share and contains placeholders only.
-- The repository is structured to keep provider code, orchestration logic, and surface code separate.
-- Some internal documentation and deployment-specific notes can stay local and do not need to be part of the first public publish.
+- Keep real tokens, private keys, and `.env` values out of git.
+- `.env.example` contains placeholders only.
+- The Apple Music identity flow uses the local server endpoints exposed by `server.js`.
